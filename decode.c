@@ -23,21 +23,29 @@
 #include <inttypes.h>
 #include "decode.h"
 
+/* 7936 = 8192 - 256 */
+int index_len[7926];
+
+void *d_memcat(void *s1, size_t n1, void *s2, size_t n2) {
+	void *target = (char*)s1 + n1;
+	memcpy(target, s2, n2);
+	return s1;
+}
+
 void d_init(dict *d) {
-	/* Initially the Max Limit is 2048 */
+	/* Initially the Max Limit is 8192 */
 	d->dictionary = (char **) malloc (sizeof(char *) * MAX_DICT_LEN); 
 	uint16_t ind;
 	
 	/* Initializing idices 0 to 255 to respective characters */
 	for(ind = 0; ind < 255; ind++) {
-		d->dictionary[ind] = (char *) malloc(sizeof(char) * 2);
+		d->dictionary[ind] = (char *) malloc(sizeof(char) * 1);
 		d->dictionary[ind][0] = ind;
-		d->dictionary[ind][1] = '\0';
 	}
 	d->lim_code = 256;
 }
 
-FILE * open_file(char *fname) {
+FILE * d_open_file(char *fname) {
 	FILE *fp;
 	fp = fopen(fname, "r");
 	
@@ -51,7 +59,7 @@ FILE * open_file(char *fname) {
 
 void decode(dict *d, char *fname) {
 	FILE *fp, *op;
-	fp = open_file(fname);
+	fp = d_open_file(fname);
 	
 	/* Remove the ".mtz" extension from the input to write to the output file */
 	uint16_t len = strlen(fname);
@@ -60,34 +68,47 @@ void decode(dict *d, char *fname) {
 	
 	char str[1024], arr[2];
 	uint16_t key;
+	int count;
 
-	fread(&key, sizeof(uint16_t), 1, fp); 		
-	fprintf(op, "%s", d->dictionary[key]); 		
-	strcpy(str, d->dictionary[key]);
+	fread(&key, sizeof(uint16_t), 1, fp);
+	fwrite(d->dictionary[key], 1, 1, op);
+	memcpy(str, d->dictionary[key], 1);
+	count = 1;
+	
 	while(fread(&key, sizeof(uint16_t), 1, fp)) {
 		if(key < d->lim_code) {
-			fprintf(op, "%s", d->dictionary[key]);
+			if(key > 255)
+				fwrite(d->dictionary[key], index_len[key - 256], 1, op);   
+			else
+				fwrite(d->dictionary[key], 1, 1, op);
+
 			arr[0] = d->dictionary[key][0];
-			arr[1] = '\0';
-			strcat(str, arr);
-			addto_dict(d, str);
-			strcpy(str, d->dictionary[key]);
+			d_memcat(str, count, arr, 1);
+			d_addto_dict(d, str, count + 1);
+
+			if(key > 255) {
+				memcpy(str, d->dictionary[key], index_len[key - 256]);
+				count = index_len[key - 256];
+			}
+			else {
+				memcpy(str, d->dictionary[key], 1);
+				count = 1;
+			}
 		}
 		else {
 			arr[0] = str[0];
-			arr[1] = '\0';
-			strcat(str, arr);
-			fprintf(op, "%s", str);
-			addto_dict(d, str);
+			d_memcat(str, count, arr, 1) ;
+			fwrite(str, count + 1, 1, op);
+			d_addto_dict(d, str, count + 1);
+			count++;
 		}
 	}
-	
 	free(d->dictionary);
 	fclose(fp);
 	fclose(op);
 }
 
-uint16_t search_dict(dict *d, char *str) {
+uint16_t d_search_dict(dict *d, char *str) {
 	if(strlen(str) == 1) {
 		return (uint16_t)str[0];
 	}
@@ -100,12 +121,13 @@ uint16_t search_dict(dict *d, char *str) {
 }
 
 /* Appends the new string at the lim_code position of the dictionary */
-void addto_dict(dict *d, char *str) {
-	d->dictionary[d->lim_code] = (char *) malloc(strlen(str) + 1);
-	if(d->dictionary[d->lim_code] == NULL) {
+void d_addto_dict(dict *d, char *str, int count) {
+	d->dictionary[d->lim_code] = (char *) malloc(count);
+	/*if(d->dictionary[d->lim_code] == NULL) {
 		exit(1);
-	}
-	strcpy(d->dictionary[d->lim_code], str);
+	}*/
+	memcpy(d->dictionary[d->lim_code], str, count);
+	index_len[d->lim_code - 256] = count;
 	d->lim_code++;
 }
 
