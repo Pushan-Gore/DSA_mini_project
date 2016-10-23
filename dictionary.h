@@ -5,7 +5,7 @@
 #define MAX_DICT_LEN 16000
 
 typedef struct dict{
-	char **dictionary;   
+	uint8_t **dictionary;   
 	uint16_t lim_code;
 }dict;
 

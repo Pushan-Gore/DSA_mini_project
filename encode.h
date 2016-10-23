@@ -16,9 +16,9 @@ void encode(dict *d, char *fname);
 /* Returns the code of the string if the string is encountered int the dictionary 
  * Else returns -1
  */
-uint16_t e_search_dict(dict *d, char *str, int len);
+uint16_t e_search_dict(dict *d, uint8_t *str, int len);
 
 /* Appends to the dictionary */
-void e_addto_dict(dict *d, char *str, int count);
-
+void e_addto_dict(dict *d, uint8_t *str, int count);
+void free_dict(dict *d);
 #endif		

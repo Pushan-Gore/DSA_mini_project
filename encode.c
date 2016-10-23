@@ -22,24 +22,26 @@
 #include <string.h>
 #include <inttypes.h>
 #include "encode.h"
+#include "dictionary.h"
+
+uint8_t index_len[15744];
 
 void *memcat(void *s1, size_t n1, void *s2, size_t n2) {
-	void *target = (char*)s1 + n1;
+	void *target = (uint8_t *)s1 + n1;
 	memcpy(target, s2, n2);
 	return s1;
 }
 
 void e_init(dict *d) {
-	/* Initially the Max Limit is 4096 */
-	d->dictionary = (char **) malloc (sizeof(char *) * MAX_DICT_LEN);   
-	uint16_t ind;
+	d->dictionary = (uint8_t **) malloc (sizeof(uint8_t) * MAX_DICT_LEN);   
+	uint8_t ind;
 	
 	/* Initializing idices 0 to 255 to respective characters */
 	for(ind = 0; ind < 255; ind++) {
-		d->dictionary[ind] = (char *) malloc(sizeof(char) * 1); 
+		d->dictionary[ind] = (uint8_t *) malloc(sizeof(uint8_t) * 1); 
 		d->dictionary[ind][0] = ind;
 	}
-	d->lim_code = 256;
+	d->lim_code = ind;
 }
 
 FILE * e_open_file(char *fname) {
@@ -61,28 +63,26 @@ void encode(dict *d, char *fname) {
 	/* Append ".mtz" extension to the output file */
 	op = fopen(strcat(fname, ".mtz"), "w");	
 	
-	char str[128], temp[128], arr[2];
-	char ch1, ch2;
+	uint8_t str[1024], temp[1024], arr[2];
+	//uint8_t ch1, ch2;
 	uint16_t code;
 	int count;
 
-	fread(&ch1, 1, 1, fp);
-	arr[0] = ch1;
+	fread(arr, sizeof(uint8_t), 1, fp);
 	memcpy(str, arr, 1);  
 	count = 1;
-	while(fread(&ch2, 1, 1, fp)) {    
-		arr[0] = ch2;
+	while(fread(arr, sizeof(uint8_t), 1, fp)) {
 		memcpy(temp, str, count);    
-		if(e_search_dict(d,memcat(str, count, arr, 1), count + 1) == MAX_DICT_LEN) {            
+		if(e_search_dict(d, memcat(str, count, arr, 1), count + 1) == MAX_DICT_LEN) {            
 			code = e_search_dict(d, temp, count); 
 			fwrite(&code, sizeof(uint16_t), 1, op);
 			e_addto_dict(d, str, count + 1);
 			memcpy(str, arr, 1);    
 			count = 1;
 		}
-		else
+		else {
 			count++;
-		
+		}
 	}
 	if(d->lim_code == MAX_DICT_LEN) {
 		printf("End of dictionary length.\n");
@@ -90,30 +90,42 @@ void encode(dict *d, char *fname) {
 	code = e_search_dict(d, str, count);
 	fwrite(&code, sizeof(uint16_t), 1, op);
 	// Write a free function.
-	free(d->dictionary);
+	printf("%d\n", d->lim_code);
+	free_dict(d);
 	fclose(fp);
 	fclose(op);
 }
 
-uint16_t e_search_dict(dict *d, char *str, int len) {      
-	if(len == 1) {                  
-		return (uint16_t)str[0];	 
-	}
+uint16_t e_search_dict(dict *d, uint8_t *str, int len) {      
+	if(len == 1) 
+		return (uint16_t) str[0];
+ 
 	uint16_t i;
 	for(i = 256; i < d->lim_code; i++) {
-		if(!memcmp(str, d->dictionary[i], len))      
+		if((len == index_len[i - 256]) && !memcmp(str, d->dictionary[i], len)){     
 			return i;			
+		}
 	}
 	return MAX_DICT_LEN;
 }
 
 /* Appends the new string at the lim_code position of the dictionary */
-void e_addto_dict(dict *d, char *str, int count) {
-	d->dictionary[d->lim_code] = (char *) malloc(count);    
+void e_addto_dict(dict *d, uint8_t *str, int count) {
+	d->dictionary[d->lim_code] = (uint8_t *) malloc(count);    
 	if(d->lim_code == MAX_DICT_LEN) {  
 		exit(1);
 	}
+	index_len[d->lim_code - 256] = (uint8_t) count; // this is a huge mistake.
 	memcpy(d->dictionary[d->lim_code], str, count);
 	d->lim_code++;
 }
 
+void free_dict(dict *d){
+	uint16_t i = 0;
+	for(i = 0; i < d->lim_code; i++) {
+		free(d->dictionary[i]);
+		d->dictionary[i] = NULL;
+	}
+	free(d->dictionary); 
+	d->dictionary = NULL;
+}

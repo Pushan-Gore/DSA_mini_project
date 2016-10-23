@@ -16,9 +16,9 @@ void decode(dict *d, char *fname);
 /* Returns the code of the string if the string is encountered int the dictionary 
  * Else returns -1
  */
-uint16_t d_search_dict(dict *d, char *str);
+uint16_t d_search_dict(dict *d, uint8_t *str);
 
 /* Appends to the dictionary */
-void d_addto_dict(dict *d, char *str, int count);
+void d_addto_dict(dict *d, uint8_t *str, int count);
 
 #endif		

@@ -35,15 +35,17 @@ int main(int argc, char *argv[]) {
 	}	
 	
 	if(!strcmp(argv[1], _decode)) {
-		char arr[20], *token;
+		char arr[20];
 		strcpy(arr, argv[2]);
-		token = strtok(arr, ".");
-		token = strtok(NULL, ".");
-		if(strcmp(token, "mtz")) {
-			printf("Incorrect extension\n");
-			printf("Extension should be .mtz\n");
-			exit(1);
-		}
+		/*char *token = strtok(arr, ".");
+		while(token) {
+			if(!strcmp(token, "mtz")) {
+				printf("Incorrect extension\n");
+				printf("Extension should be .mtz\n");
+				exit(1);	
+			}
+			token = strtok(arr, ".");
+		}*/
 		d_init(&d);
 		decode(&d, argv[2]);
 	}	
