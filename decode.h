@@ -19,6 +19,6 @@ void decode(dict *d, char *fname);
 uint16_t d_search_dict(dict *d, uint8_t *str);
 
 /* Appends to the dictionary */
-void d_addto_dict(dict *d, uint8_t *str, int count);
+void d_addto_dict(dict *d, uint8_t *str, uint16_t count);
 
 #endif		

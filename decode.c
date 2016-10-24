@@ -25,7 +25,7 @@
 #include "dictionary.h"
 
 /* 7936 = 8192 - 256 */
-uint8_t index_len[15744];
+uint16_t index_len[16000];
 
 void *d_memcat(void *s1, size_t n1, void *s2, size_t n2) {
 	void *target = (uint8_t*)s1 + n1;
@@ -39,9 +39,9 @@ void d_init(dict *d) {
 	uint16_t ind;
 	
 	/* Initializing idices 0 to 255 to respective characters */
-	for(ind = 0; ind < 255; ind++) {
+	for(ind = 0; ind < 256; ind++) {
 		d->dictionary[ind] = (uint8_t *) malloc(sizeof(uint8_t) * 1);
-		d->dictionary[ind][0] = ind;
+		d->dictionary[ind][0] = (uint8_t) ind;
 	}
 	d->lim_code = ind;
 }
@@ -67,15 +67,15 @@ void decode(dict *d, char *fname) {
 	fname[len - 4] = '\0';
 	op = fopen(fname, "w");	
 	
-	uint8_t str[1024], arr[1];
+	uint8_t str[16000], arr[1];
 	uint16_t key, prev_key;
-	int count;
+	uint16_t count;
 
 	fread(&key, sizeof(uint16_t), 1, fp);
 	fwrite(d->dictionary[key], sizeof(uint8_t), 1, op);
 	memcpy(str, d->dictionary[key], 1);
 	prev_key = key;
-	count = 1;
+	count = sizeof(uint8_t);
 	
 	while(fread(&key, sizeof(uint16_t), 1, fp)) {
 		if(key < d->lim_code) {	
@@ -85,7 +85,7 @@ void decode(dict *d, char *fname) {
 			}
 			else {
 				memcpy(str, d->dictionary[key], 1);
-				count = 1;
+				count = sizeof(uint8_t);
 			}
 		}
 		
@@ -96,23 +96,23 @@ void decode(dict *d, char *fname) {
 			}
 			else {
 				memcpy(str, d->dictionary[prev_key], 1);
-				count = 1;
+				count = sizeof(uint8_t);
 			}
-			d_memcat(str, count, arr, 1); 
-			count++;
+			d_memcat(str, count, arr, sizeof(uint8_t)); 
+			count = count + sizeof(uint8_t);
 		}
 		
 		fwrite(str, count, 1, op);
 		arr[0] = str[0];
 		if(prev_key > 255) { 
 			memcpy(str, d->dictionary[prev_key] , index_len[prev_key - 256]);
-			d_memcat(str, index_len[prev_key - 256], arr ,1);
-			count = index_len[prev_key - 256] + 1; 
+			d_memcat(str, index_len[prev_key - 256], arr ,sizeof(uint8_t));
+			count = index_len[prev_key - 256] + sizeof(uint8_t); 
 		}
 		else {
-			memcpy(str, d->dictionary[prev_key] , 1);
-			d_memcat(str, 1, arr, 1);
-			count = 2;
+			memcpy(str, d->dictionary[prev_key] , sizeof(uint8_t));
+			d_memcat(str, sizeof(uint8_t), arr, sizeof(uint8_t));
+			count = 2 * sizeof(uint8_t);
 		}
 		d_addto_dict(d, str, count); 
 		prev_key = key;
@@ -136,13 +136,13 @@ uint16_t d_search_dict(dict *d, uint8_t *str);
 
 
 /* Appends the new string at the lim_code position of the dictionary */
-void d_addto_dict(dict *d, uint8_t *str, int count) {
+void d_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 	d->dictionary[d->lim_code] = (uint8_t *) malloc(count);
 	/*if(d->dictionary[d->lim_code] == NULL) {
 		exit(1);
 	}*/
 	memcpy(d->dictionary[d->lim_code], str, count);
-	index_len[d->lim_code - 256] = (uint8_t) count; // This may be a huge mistake
+	index_len[d->lim_code - 256] = count; // This may be a huge mistake
 	d->lim_code++;
 }
 
