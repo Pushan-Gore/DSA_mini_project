@@ -1,10 +1,10 @@
-READ ME FILE
+#READ ME FILE
 
-**** Pushan Gore  ****
-**** 111503023    ****
-**** Compression  ****
+**** Pushan Gore  **** <br>
+**** 111503023    **** <br>
+**** Compression  **** <br>
 
-Project : LZW Compression ( My Version )
+	#Project : LZW Compression ( My Version )
 
 	Compressing:
 
@@ -63,7 +63,8 @@ Project : LZW Compression ( My Version )
 		
 	*(Multiple files are not compressed. See the 'expected final project' section.)	
 
-Expected Final Project:
-	The final project should compress and extract MULTIPLE files (compressed into a single file)
+	Expected Final Project:
+		
+		The final project should compress and extract MULTIPLE files (compressed into a single file)
 
 
