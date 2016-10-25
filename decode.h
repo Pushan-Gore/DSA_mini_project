@@ -3,22 +3,22 @@
 
 #include "dictionary.h"
 
-/* Initializes the dictionary. Puts value from 0 to 255 in the dictionary 
- * Returns the malloced pointer of the dictionary
- */
+/* Initializes the dictionary. Puts value from 0 to 255 in the dictionary */
+/* Returns the malloced pointer of the dictionary */
 void d_init(dict *d);
 
+/* Opens the file "fname" and returns the pointer */
 FILE *d_open_file(char *fname);
 
-/* Encode should create a file with some extension (say .mtz) ( stands for "My tar zip) */
+/* Decode should decompress the file with format ".mtz" */
+/* It checks for the format in the name */
+/* Outputs a file with "fname" - ".mtz" */
 void decode(dict *d, char *fname);
 
-/* Returns the code of the string if the string is encountered int the dictionary 
- * Else returns -1
- */
-uint16_t d_search_dict(dict *d, uint8_t *str);
-
-/* Appends to the dictionary */
+/* Appends to the dictionary at lim_code of the dictionary */
 void d_addto_dict(dict *d, uint8_t *str, uint16_t count);
+
+/* Frees all the malloced pointers */
+void d_free_dict(dict *d);
 
 #endif		

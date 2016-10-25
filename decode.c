@@ -1,20 +1,10 @@
-/* Decoding using LZW compressiong algorithm
+/***** Pushan Gore *****/
+/*****  111503023  *****/
 
- * Algorithm is :
- * BEGIN:
-	s = NILL
-   	while not EOF {
-		k = next input code
-		entry = dictionary entry for k
-		//exception case
-		if(entry == NULL)
-			entry = s + s[0]
-		output entry
-		if(s != NILL) 
-			add string s + entry[0] to dictionary with a new code
-		s = entry
-	}
-   END
+/* Decompression */
+/* The program takes a file name as an argument and a dictionary. */
+/* This Decompression algorithm uses a dictionary to store the byte sequence 
+ * by reading the 16 bit numbers stored in the ".mtz" file. 
  */
 
 #include <stdio.h>
@@ -24,8 +14,11 @@
 #include "decode.h"
 #include "dictionary.h"
 
-/* 7936 = 8192 - 256 */
+//Need to put this in dictionary.h
 uint16_t index_len[16000];
+
+/* Memory concatination function. */
+/* Same as strcat. */
 
 void *d_memcat(void *s1, size_t n1, void *s2, size_t n2) {
 	void *target = (uint8_t*)s1 + n1;
@@ -33,18 +26,25 @@ void *d_memcat(void *s1, size_t n1, void *s2, size_t n2) {
 	return s1;
 }
 
+/* Initializes the dictionary 'd' */
+/* The first 256 data entries are also initiated here */
+/* Code limit (lim_code) is the number of dictionary entries */
+
 void d_init(dict *d) {
-	/* Initially the Max Limit is 8192 */
+	/* Malloc the dictionary of pointers with MAX_DICT_LEN as 16000 */ 
 	d->dictionary = (uint8_t **) malloc (sizeof(uint8_t *) * MAX_DICT_LEN); 
-	uint16_t ind;
 	
+	uint16_t ind;
 	/* Initializing idices 0 to 255 to respective characters */
 	for(ind = 0; ind < 256; ind++) {
 		d->dictionary[ind] = (uint8_t *) malloc(sizeof(uint8_t) * 1);
 		d->dictionary[ind][0] = (uint8_t) ind;
 	}
+	/* Set limit of dictionary (lim_code) as 256 */
 	d->lim_code = ind;
 }
+
+/*A file open fucntion that returns the pointer of the file passed as an argument */
 
 FILE * d_open_file(char *fname) {
 	FILE *fp;
@@ -52,14 +52,34 @@ FILE * d_open_file(char *fname) {
 	
 	/* Exit from the program is No file exists */
 	if(fp == NULL) {
-		printf("File open failed : %s\n", fname);
+		perror("File open failed\n");
 		exit(1);
 	}
 	return fp;
 }
 
+/* Main Decompression Function */
 void decode(dict *d, char *fname) {
 	FILE *fp, *op;
+	char *file, *token, *ext = "mtz";
+	char flag = 'r'; /* Flag is reset */ 
+	file = (char *) malloc(sizeof(char) * (strlen(fname) + 1));
+	strcpy(file, fname);
+
+	/* Check whether the file has a .mtz format or not */ 
+	token = strtok(file, ".");
+	while(token != NULL) {  
+		if(!strcmp(token, ext))
+			flag = 's'; /* Flag is set */
+		else 
+			flag = 'r';
+		token = strtok(NULL, ".");	
+	}
+	if(flag == 'r') {
+		printf("Incorrect file format: %s\n", fname);
+	}
+	free(file);
+	/* Open the compressed file with format ".mtz" */
 	fp = d_open_file(fname);
 	
 	/* Remove the ".mtz" extension from the input to write to the output file */
@@ -71,6 +91,7 @@ void decode(dict *d, char *fname) {
 	uint16_t key, prev_key;
 	uint16_t count;
 
+	/* Main Decompression Loop */
 	fread(&key, sizeof(uint16_t), 1, fp);
 	fwrite(d->dictionary[key], sizeof(uint8_t), 1, op);
 	memcpy(str, d->dictionary[key], 1);
@@ -116,33 +137,47 @@ void decode(dict *d, char *fname) {
 		}
 		d_addto_dict(d, str, count); 
 		prev_key = key;
+
+		/* Exit from the program if dictionary size has reached its limit */ 
+		if(d->lim_code == MAX_DICT_LEN) {
+			printf("End of dictionary length.\n");
+			printf("Program terminated.\n");
+			exit(1);
+		}
 	}
 	
-	free(d->dictionary);
+	/* Call the free dictionary function to clear all malloced pointers */ 
+//	d_free_dict(d);
+	
+	/* Close both files */
 	fclose(fp);
 	fclose(op);
 }
 
-uint16_t d_search_dict(dict *d, uint8_t *str);
-/*	if(strlen(str) == 1) {
-		return (uint16_t)str[0];
-	}
-	uint16_t i;
-	for(i = 256; i < d->lim_code; i++) {
-		if(!strcmp(str, d->dictionary[i])) 
-			return i;
-	}
-	return MAX_DICT_LEN;*/
-
-
 /* Appends the new string at the lim_code position of the dictionary */
+/* Increments the end of dictionary (lim_code) */
+
 void d_addto_dict(dict *d, uint8_t *str, uint16_t count) {
-	d->dictionary[d->lim_code] = (uint8_t *) malloc(count);
-	/*if(d->dictionary[d->lim_code] == NULL) {
+	d->dictionary[d->lim_code] = (uint8_t *) malloc(sizeof(uint8_t) * count);    
+	
+	if(d->dictionary[d->lim_code] == NULL) {
+		printf("Memory limit reached.\n");
+		printf("Program terminated.\n");
 		exit(1);
-	}*/
+	}
+	
+	index_len[d->lim_code - 256] = count; 
 	memcpy(d->dictionary[d->lim_code], str, count);
-	index_len[d->lim_code - 256] = count; // This may be a huge mistake
 	d->lim_code++;
 }
 
+/* Function to free all malloced pointers */
+void d_free_dict(dict *d){
+	uint16_t i = 0;
+	for(i = 0; i < d->lim_code; i++) {
+		d->dictionary[i] = NULL;
+		free(d->dictionary[i]);
+	}
+	//free(d->dictionary); 
+	//d->dictionary = NULL;
+}

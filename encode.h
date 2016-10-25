@@ -3,22 +3,24 @@
 
 #include "dictionary.h"
 
-/* Initializes the dictionary. Puts value from 0 to 255 in the dictionary 
- * Returns the malloced pointer of the dictionary
- */
+/* Initializes the dictionary. Puts value from 0 to 255 in the dictionary */
+/* Returns the malloced pointer of the dictionary */
 void e_init(dict *d);
 
+/* Opens the file "fname" and returns the pointer */
 FILE *e_open_file(char *fname);
 
-/* Encode should create a file with some extension (say .mtz) ( stands for "My tar zip) */
+/* Encode should create a file with some extension (say .mtz) (stands for "My tar zip) */
 void encode(dict *d, char *fname);
 
-/* Returns the code of the string if the string is encountered int the dictionary 
- * Else returns -1
- */
+/* Returns the code of the string if the string is encountered in the dictionary */
+/* Else returns MAX_DICT_LEN */
 uint16_t e_search_dict(dict *d, uint8_t *str, uint16_t len);
 
-/* Appends to the dictionary */
+/* Appends to the dictionary at lim_code of the dictionary */
 void e_addto_dict(dict *d, uint8_t *str, uint16_t count);
-void free_dict(dict *d);
+
+/* Frees all the malloced pointers */
+void e_free_dict(dict *d);
+
 #endif		
