@@ -8,7 +8,7 @@ Project : LZW Compression ( My Version )
 
 	Compressing:
 
-	The Project uses the LZW compression algorithm (My version) to compress a "single"* file.
+	The Project uses the LZW compression algorithm (My modified version) to compress a "single"* file.
 	I have used my modified version of LZW algorithm (similar to LZ77) for this project.
 	The algorithm reads characters from the file and writes them to the dictionary.
 	
@@ -63,15 +63,7 @@ Project : LZW Compression ( My Version )
 		
 	*(Multiple files are not compressed. See the 'expected final project' section.)	
 
-Limitations and Current errors: 
-
-	The program easily compresses and extracts "text files" without any error. 
-	For very large files it doesn't completely extracts the compressed file. 
-	Compresses the binary files but doesn't extract it fully.
-
 Expected Final Project:
-
-	The Final project will compress and extract ANY (Text and Binary) file.
-	Also it will compress and extract MULTIPLE files (compressed into a single file)
+	The final project should compress and extract MULTIPLE files (compressed into a single file)
 
 
