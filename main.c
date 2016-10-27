@@ -32,15 +32,14 @@ int main(int argc, char *argv[]) {
 	
 	/* Return when command line arguments are less than or more than 3 */
 	if(argc < 3) {
+		/* Display the help ad exit */
+		if(!strcmp(argv[1], _help1) || !strcmp(argv[1], _help2)) {
+			printf("%s", help);
+			return 0;
+		}
 		printf("Incorrect Usage.\n");
 		printf("Try './project --help' or './project -h' for more information\n"); 
 		exit(1);
-	}
-
-	/* Display the help ad exit */
-	if(!strcmp(argv[1], _help1) || !strcmp(argv[1], _help2)) {
-		printf("%s", help);
-		return 0;
 	}
 
 	/* project -c <FILENAME> */
