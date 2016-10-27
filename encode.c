@@ -73,6 +73,8 @@ FILE * e_open_file(char *fname) {
 /* Main Compression Function */
 void encode(dict *d, char *fname) {
 	FILE *fp, *op;
+	char file[128];
+	strcpy(file, fname);
 	
 	fp = e_open_file(fname);
 	
@@ -116,12 +118,12 @@ void encode(dict *d, char *fname) {
 		
 		if(byte + 1 == len){
 			printf("\r"); 
-			printf("Compression [%ld%%] Done.", ((byte + 1)*100)/len);
+			printf("Compression on '%s' [%ld%%] Done.",file ,((byte + 1)*100)/len);
 			fflush(stdout);
 		}
 		else {
 			printf("\r"); 
-			printf("Compression [%ld%%] Done...", ((byte + 1)*100)/len);
+			printf("Compression on '%s' [%ld%%] Done...",file, ((byte + 1)*100)/len);
 			fflush(stdout);
 			byte++;
 		}
