@@ -7,6 +7,9 @@
 /* Returns the malloced pointer of the dictionary */
 void e_init(dict *d);
 
+/* Returns the size of file with nme "file" */
+unsigned long fsize(char *file);
+
 /* Opens the file "fname" and returns the pointer */
 FILE *e_open_file(char *fname);
 

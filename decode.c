@@ -14,8 +14,10 @@
 #include "decode.h"
 #include "dictionary.h"
 
-//Need to put this in dictionary.h
-uint16_t index_len[16000];
+/* Stores the length of byte sequence*/
+uint16_t *index_len;
+
+int D_MAX_DICT_LEN = MAX_LEN;
 
 /* Memory concatination function. */
 /* Same as strcat. */
@@ -32,7 +34,7 @@ void *d_memcat(void *s1, size_t n1, void *s2, size_t n2) {
 
 void d_init(dict *d) {
 	/* Malloc the dictionary of pointers with MAX_DICT_LEN as 16000 */ 
-	d->dictionary = (uint8_t **) malloc (sizeof(uint8_t *) * MAX_DICT_LEN); 
+	d->dictionary = (uint8_t **) malloc (sizeof(uint8_t *) * D_MAX_DICT_LEN); 
 	
 	uint16_t ind;
 	/* Initializing idices 0 to 255 to respective characters */
@@ -77,6 +79,7 @@ void decode(dict *d, char *fname) {
 	}
 	if(flag == 'r') {
 		printf("Incorrect file format: %s\n", fname);
+		exit(1);
 	}
 	free(file);
 	/* Open the compressed file with format ".mtz" */
@@ -90,6 +93,8 @@ void decode(dict *d, char *fname) {
 	uint8_t str[16000], arr[1];
 	uint16_t key, prev_key;
 	uint16_t count;
+
+	index_len = (uint16_t *) malloc(sizeof(uint16_t) * D_MAX_DICT_LEN);
 
 	/* Main Decompression Loop */
 	fread(&key, sizeof(uint16_t), 1, fp);
@@ -139,15 +144,16 @@ void decode(dict *d, char *fname) {
 		prev_key = key;
 
 		/* Exit from the program if dictionary size has reached its limit */ 
-		if(d->lim_code == MAX_DICT_LEN) {
-			printf("End of dictionary length.\n");
-			printf("Program terminated.\n");
-			exit(1);
+		if(d->lim_code == D_MAX_DICT_LEN) {
+			D_MAX_DICT_LEN *= 2;
+			d->dictionary = (uint8_t **) realloc (d->dictionary, sizeof(uint8_t *) * D_MAX_DICT_LEN); 
+			index_len = (uint16_t *) realloc(index_len, sizeof(uint16_t) * D_MAX_DICT_LEN);
 		}
 	}
 	
 	/* Call the free dictionary function to clear all malloced pointers */ 
-//	d_free_dict(d);
+	free(index_len);
+	d_free_dict(d);
 	
 	/* Close both files */
 	fclose(fp);
@@ -175,9 +181,7 @@ void d_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 void d_free_dict(dict *d){
 	uint16_t i = 0;
 	for(i = 0; i < d->lim_code; i++) {
-		d->dictionary[i] = NULL;
 		free(d->dictionary[i]);
 	}
-	//free(d->dictionary); 
-	//d->dictionary = NULL;
+	free(d->dictionary); 
 }

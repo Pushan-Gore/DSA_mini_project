@@ -21,18 +21,18 @@ int main(int argc, char *argv[]) {
       	\n\
 	-h, --help    Display this help and exit \n";
 	dict d;
-
-	/* Display the help ad exit */
-	if(!strcmp(argv[1], _help1) || !strcmp(argv[1], _help2)) {
-		printf("%s", help);
-		return 0;
-	}
-
+	
 	/* Return when command line arguments are less than or more than 3 */
 	if(argc != 3) {
 		printf("Incorrect Usage.\n");
 		printf("Try './project --help' or './project -h' for more information\n"); 
 		exit(1);
+	}
+
+	/* Display the help ad exit */
+	if(!strcmp(argv[1], _help1) || !strcmp(argv[1], _help2)) {
+		printf("%s", help);
+		return 0;
 	}
 
 	/* project -c <FILENAME> */
@@ -42,9 +42,14 @@ int main(int argc, char *argv[]) {
 	}	
 	
 	/* project -x <FILENAME> */
-	if(!strcmp(argv[1], _decode)) {
+	else if(!strcmp(argv[1], _decode)) {
 		d_init(&d);
 		decode(&d, argv[2]);
+	}
+	
+	else {
+		printf("Incorrect Usage.\n");
+		printf("Try './project --help' or './project -h' for more information\n"); 
 	}
 
 	return 0;	

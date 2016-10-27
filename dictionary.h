@@ -2,7 +2,7 @@
 #define __DICTIONARY_H
 
 #include <inttypes.h>
-#define MAX_DICT_LEN 16000 
+#define MAX_LEN 16000
 
 typedef struct dict{
 	uint8_t **dictionary;   
