@@ -4,11 +4,11 @@
 **** 111503023    **** <br>
 **** Compression  **** <br>
 
-	#Project : LZW Compression ( My Version )
+	#Project : Compression ( Modified Version of LZW)
 
 	Compressing:
 
-	The Project uses the LZW compression algorithm (My modified version) to compress a "single"* file.
+	The Project uses the LZW compression algorithm (My modified version) to compress a file.
 	I have used my modified version of LZW algorithm (similar to LZ77) for this project.
 	The algorithm reads characters from the file and writes them to the dictionary.
 	
@@ -59,9 +59,6 @@
 	Example:
 		./project -x example.mtz
 		>> example will be created.
-	
-		
-	*(Multiple files are not compressed. See the 'expected final project' section.)	
 
 	Expected Final Project:
 		
