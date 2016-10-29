@@ -59,6 +59,18 @@
 	Example:
 		./project -x example.mtz
 		>> example will be created.
+		
+	This program also has a feature which will compress all the files in the working directory.
+	Usage:
+		./project -C
+		OR
+		./project -Call
+		
+	Also it will extract all ".mtz" files in the working directory.
+	Usage:
+		./project -X
+		OR
+		./project -Xall
 
 	Expected Final Project:
 		
