@@ -143,7 +143,7 @@ void decode(dict *d, char *fname) {
 		d_addto_dict(d, str, count); 
 		prev_key = key;
 
-		/* Exit from the program if dictionary size has reached its limit */ 
+		/* Realloc the dictionary if dictionary size has reached its limit */ 
 		if(d->lim_code == D_MAX_DICT_LEN) {
 			D_MAX_DICT_LEN *= 2;
 			d->dictionary = (uint8_t **) realloc (d->dictionary, sizeof(uint8_t *) * D_MAX_DICT_LEN); 

@@ -128,7 +128,7 @@ void encode(dict *d, char *fname) {
 			byte++;
 		}
 
-		/* Exit from the program if dictionary size has reached its limit */ 
+		/* Realloc the dictionary if dictionary size has reached its limit */ 
 		if(d->lim_code == C_MAX_DICT_LEN) {
 			C_MAX_DICT_LEN *= 2;
 			d->dictionary = (uint8_t **) realloc (d->dictionary, sizeof(uint8_t *) * C_MAX_DICT_LEN);   
