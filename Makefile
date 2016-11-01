@@ -9,5 +9,6 @@ encode.o: encode.c encode.h dictionary.h
 
 decode.o: decode.c decode.h dictionary.h
 	gcc -c decode.c -Wall -g
-clear:
+
+clean:
 	rm *.o

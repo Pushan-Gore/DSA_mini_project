@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <error.h>
 #include "encode.h"
 #include "dictionary.h"
@@ -83,23 +85,27 @@ FILE * e_open_file(char *fname) {
 	return fp;
 }
 
+FILE * e_open_op_file(char *fname) {
+	FILE *fp;
+	fp = fopen(fname, "w");
+	/* Exit from the program if file open failed */
+	if(fp == NULL) {
+		perror("File open failed\n");
+		exit(1);
+	}
+	return fp;
+}
+
 /* Main Compression Function */
-void encode(dict *d, char *fname) {
+void encode(dict *d, char *fname, char *op_fname) {
 	FILE *fp, *op;
 	char file[128];
 	strcpy(file, fname);
 	fp = e_open_file(fname);
-	
-	unsigned long len = fsize(fname);
-	unsigned long byte = 1;
+	op = e_open_op_file(strcat(op_fname, ".mtz"));  /* Append ".mtz" to the file name */ 
 
-	/* Append ".mtz" extension to the output file */
-	op = fopen(strcat(fname, ".mtz"), "w");	
-	/* Exit from the program if No file exists */
-	if(op == NULL) {
-		perror("File open failed\n");
-		exit(1);
-	}	
+	unsigned long len = fsize(file);
+	unsigned long byte = 1;
 
 	uint8_t str[16000], temp[16000], arr[1];
 	uint16_t code;
@@ -152,8 +158,8 @@ void encode(dict *d, char *fname) {
 	code = e_search_dict(d, str, count);
 	fwrite(&code, sizeof(uint16_t), 1, op);
 
-	printf("\nOutput file : %s\n", fname);
-	printf("Compression ratio -> %lf : 1", ((double) len/ (double) (fsize(fname))));
+	printf("\nOutput file : %s\n", op_fname);
+	printf("Compression ratio -> %lf : 1", ((double) len/ (double) (fsize(op_fname))));
 	printf("\n\n");
 
 	/* Call the free dictionary function to clear all malloced pointers */ 
@@ -197,6 +203,55 @@ void e_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 	index_len[d->lim_code - 256] = count; 
 	memcpy(d->dictionary[d->lim_code], str, count);
 	d->lim_code++;
+}
+
+/* Function compresses the entire folder into a single folder with .mtz extension */
+void dir_encode(char *dir_name, char *op_dir_name) {
+	dict d;
+	struct dirent *de;  
+	DIR *dr = opendir(dir_name);
+	if(dr == NULL) {
+			printf("Directory open failed.\nNo such directory exists\n");
+			exit(1);
+	}
+	char string_ip[128], string_op[128], op_dir[128];
+
+	int dir_len = strlen(dir_name);
+	int op_dir_len = strlen(op_dir_name);
+	if(dir_name[dir_len - 1] != '/') {
+			strcat(dir_name, "/");
+			dir_len++;
+	}
+	if(op_dir_name[op_dir_len - 1] != '/') {
+			strcat(op_dir_name, "/");
+			op_dir_len++;
+	}
+	strcpy(op_dir, op_dir_name);
+	op_dir[op_dir_len - 1] = '\0';
+	strcat(op_dir, ".mtz");
+	strcat(op_dir, "/");
+	mkdir(op_dir, 0777);
+
+	while ((de = readdir(dr)) != NULL) {
+		if(!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
+				continue;
+		if((de->d_type != DT_DIR)) {
+			e_init(&d);
+			strcpy(string_ip, dir_name);
+			strcat(string_ip, de->d_name);
+			strcpy(string_op, op_dir);
+			strcat(string_op, de->d_name);
+			encode(&d, string_ip, string_op);
+		}
+		else {
+			strcpy(string_ip, dir_name);
+			strcat(string_ip, de->d_name);		
+			strcpy(string_op, op_dir);
+			strcat(string_op, de->d_name);
+			dir_encode(string_ip, string_op);
+		}
+	}
+	closedir(dr);		
 }
 
 /* Function to free all malloced pointers */

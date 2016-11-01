@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <error.h>
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <inttypes.h>
 #include "decode.h"
 #include "dictionary.h"
@@ -66,8 +68,18 @@ void d_init(dict *d) {
 FILE * d_open_file(char *fname) {
 	FILE *fp;
 	fp = fopen(fname, "r");
-	
-	/* Exit from the program is No file exists */
+	/* Exit from the program if No file exists */
+	if(fp == NULL) {
+		perror("File open failed\n");
+		exit(1);
+	}
+	return fp;
+}
+
+FILE * d_open_op_file(char *fname) {
+	FILE *fp;
+	fp = fopen(fname, "w");
+	/* Exit from the program file open fails */
 	if(fp == NULL) {
 		perror("File open failed\n");
 		exit(1);
@@ -76,7 +88,7 @@ FILE * d_open_file(char *fname) {
 }
 
 /* Main Decompression Function */
-void decode(dict *d, char *fname) {
+void decode(dict *d, char *fname, char *op_fname) {
 	FILE *fp, *op;
 	char *file, *token, *ext = "mtz";
 	char flag = 'r'; /* Flag is reset */ 
@@ -96,14 +108,15 @@ void decode(dict *d, char *fname) {
 		printf("Incorrect file format: %s\n", fname);
 		exit(1);
 	}
-	free(file);
-	/* Open the compressed file with format ".mtz" */
-	fp = d_open_file(fname);
 	
+	strcpy(file, fname);
 	/* Remove the ".mtz" extension from the input to write to the output file */
-	uint16_t len = strlen(fname);
-	fname[len - 4] = '\0';
-	op = fopen(fname, "w");	
+	uint16_t len = strlen(op_fname);
+	op_fname[len - 4] = '\0';
+
+	/* Open the compressed file with format ".mtz" */
+	fp = d_open_file(file);
+	op = d_open_op_file(op_fname);
 	
 	uint8_t str[16000], arr[1];
 	uint16_t key, prev_key;
@@ -169,6 +182,7 @@ void decode(dict *d, char *fname) {
 	/* Call the free dictionary function to clear all malloced pointers */ 
 	free(index_len);
 	d_free_dict(d);
+	free(file);
 	
 	/* Close both files */
 	fclose(fp);
@@ -190,6 +204,54 @@ void d_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 	index_len[d->lim_code - 256] = count; 
 	memcpy(d->dictionary[d->lim_code], str, count);
 	d->lim_code++;
+}
+
+void dir_decode(char *dir_name, char *op_dir_name) {
+	dict d;
+	struct dirent *de;  
+	DIR *dr = opendir(dir_name);
+	if(dr == NULL) {
+			printf("Directory open failed.\nNo such directory exists\n");
+			exit(1);
+	}
+	char string_ip[128], string_op[128], op_dir[128];
+
+	int dir_len = strlen(dir_name);
+	int op_dir_len = strlen(op_dir_name);
+	if(dir_name[dir_len - 1] != '/') {
+			strcat(dir_name, "/");
+			dir_len++;
+	}
+	if(op_dir_name[op_dir_len - 1] != '/') {
+			strcat(op_dir_name, "/");
+			op_dir_len++;
+	}
+	strcpy(op_dir, op_dir_name);
+	/* Remove the ".mtz" extension */
+	op_dir[op_dir_len - 5] = '\0';
+	strcat(op_dir, "/");
+	mkdir(op_dir, 0777);
+
+	while ((de = readdir(dr)) != NULL) {
+		if(!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
+				continue;
+		if((de->d_type != DT_DIR)) {
+			d_init(&d);
+			strcpy(string_ip, dir_name);
+			strcat(string_ip, de->d_name);
+			strcpy(string_op, op_dir);
+			strcat(string_op, de->d_name);
+			decode(&d, string_ip, string_op);
+		}
+		else {
+			strcpy(string_ip, dir_name);
+			strcat(string_ip, de->d_name);		
+			strcpy(string_op, op_dir);
+			strcat(string_op, de->d_name);
+			dir_decode(string_ip, string_op);
+		}
+	}
+	closedir(dr);		
 }
 
 /* Function to free all malloced pointers */
