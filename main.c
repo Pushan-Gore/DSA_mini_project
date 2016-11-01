@@ -1,6 +1,21 @@
-/***** Pushan Gore *****/
-/*****  111503023  *****/
-/*****  __MAIN_C   *****/
+/*
+ **********************************************************************
+ * Copyright (C) 2016  Pushan Gore (111503023)
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ *********************************************************************** */
 
 #include <stdio.h>
 #include <string.h>
@@ -26,13 +41,13 @@ int main(int argc, char *argv[]) {
 	char *help = "Usage: ./project [OPTION]... [FILE]...\n\
 	Mandatory arguments \n\
   	-c		Compress the given file\n\
-	-C, --Call	Compress ALL files in current directory\n\
-					Usage: ./project -C\n\
+	-C, --Call	Compress ALL files in the directory given as command line argument \n\
+					Usage: ./project -C <DIRECTORY> \n\
   	\n\
 	-x		Decompress the given file\n\
-	-X, --Xall	Decompress ALL files with '.mtz' extension in the current directory \n\
-					Usage: ./project -X\n\
-     \n\
+	-X, --Xall	Decompress ALL files with '.mtz' extension in the directory given as command line argument \n\
+					Usage: ./project -X <DIRECTORY> \n\
+    \n\
 	-h, --help	Display this help and exit \n";
 	
 	dict d;
@@ -67,18 +82,26 @@ int main(int argc, char *argv[]) {
 	/* Encoding all files in current directory */	
 	/* project -C */
 	struct dirent *de;  
-	DIR *dr = opendir(".");
+	DIR *dr = opendir(argv[2]);
+	if(dr == NULL) {
+			printf("Directory open failed.\nNo such directory exists\n");
+			exit(1);
+	}
 	char string[128];
+	int dir_len = strlen(argv[2]);
+	if(argv[2][dir_len - 1] != '/') {
+			strcat(argv[2], "/");
+	} 
 
-	if((argc == 2) && ((!strcmp(argv[1], _mul_encode1)) || (!strcmp(argv[1], _mul_encode2)))) {
+	if((argc == 3) && ((!strcmp(argv[1], _mul_encode1)) || (!strcmp(argv[1], _mul_encode2)))) {
 		while ((de = readdir(dr)) != NULL) {
 			if(!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
 					continue;
-			strcpy(string, "test -d ./");
-			strcat(string, de->d_name);
-			if(system(string)) {
+			if((de->d_type != DT_DIR)) {
 				e_init(&d);
-				encode(&d, de->d_name);
+				strcpy(string, argv[2]);
+				strcat(string, de->d_name);
+				encode(&d, string);
 			}
 		}
 		closedir(dr);		
@@ -90,7 +113,7 @@ int main(int argc, char *argv[]) {
 	char *token, *ext = "mtz";
 	char file[128], flag = 'r';
 
-	if((argc == 2) && ((!strcmp(argv[1], _mul_decode1)) || (!strcmp(argv[1], _mul_decode2)))) {
+	if((argc == 3) && ((!strcmp(argv[1], _mul_decode1)) || (!strcmp(argv[1], _mul_decode2)))) {
 		while ((de = readdir(dr)) != NULL) {
 			if(!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
 				continue;
@@ -105,11 +128,11 @@ int main(int argc, char *argv[]) {
 			}
 			if(flag == 'r')
 				continue;
-			strcpy(string, "test -d ./");
-			strcat(string, de->d_name);
-			if(system(string)) {
+			if((de->d_type) != DT_DIR) { 
 				d_init(&d);
-				decode(&d, de->d_name);
+				strcpy(string, argv[2]);
+				strcat(string, de->d_name);
+				decode(&d, string);
 			}
 		}
 		closedir(dr);		

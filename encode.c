@@ -1,6 +1,21 @@
-/***** Pushan Gore *****/
-/*****  111503023  *****/
+/*
+ **********************************************************************
+ * Copyright (C) 2016  Pushan Gore (111503023)
 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ *********************************************************************** */
 /* Compression */
 /* The program takes a file name as an argument and a dictionary. */
 /* This Compression algorithm uses a dictionary to store the byte sequence */
@@ -17,7 +32,6 @@ int C_MAX_DICT_LEN = MAX_LEN;
 
 /* Stores the length of the byte sequence */
 uint16_t *index_len;
-
 
 /* Memory concatination function. */
 /* Same as strcat. */
@@ -61,7 +75,6 @@ void e_init(dict *d) {
 FILE * e_open_file(char *fname) {
 	FILE *fp;
 	fp = fopen(fname, "r");
-	
 	/* Exit from the program if No file exists */
 	if(fp == NULL) {
 		perror("File open failed\n");
@@ -75,7 +88,6 @@ void encode(dict *d, char *fname) {
 	FILE *fp, *op;
 	char file[128];
 	strcpy(file, fname);
-	
 	fp = e_open_file(fname);
 	
 	unsigned long len = fsize(fname);
@@ -94,7 +106,6 @@ void encode(dict *d, char *fname) {
 	uint16_t count;
 	
 	printf("\n");
- 
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * C_MAX_DICT_LEN);
 
 	/* Main Compression Loop */
@@ -104,7 +115,6 @@ void encode(dict *d, char *fname) {
 
 	while(fread(arr, sizeof(uint8_t), 1, fp)) {
 		memcpy(temp, str, count);    
-		
 		if(e_search_dict(d, memcat(str, count, arr, sizeof(uint8_t)), count + sizeof(uint8_t)) == C_MAX_DICT_LEN) {            
 			code = e_search_dict(d, temp, count); 
 			fwrite(&code, sizeof(uint16_t), 1, op);

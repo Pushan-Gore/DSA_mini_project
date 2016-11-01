@@ -1,14 +1,29 @@
-/***** Pushan Gore *****/
-/*****  111503023  *****/
+/*
+ **********************************************************************
+ * Copyright (C) 2016  Pushan Gore (111503023)
 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ *********************************************************************** */
 /* Decompression */
 /* The program takes a file name as an argument and a dictionary. */
 /* This Decompression algorithm uses a dictionary to store the byte sequence 
- * by reading the 16 bit numbers stored in the ".mtz" file. 
- */
+ * by reading the 16 bit numbers stored in the ".mtz" file. */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <error.h>
 #include <string.h>
 #include <inttypes.h>
 #include "decode.h"
