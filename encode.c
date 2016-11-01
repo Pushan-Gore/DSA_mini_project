@@ -106,7 +106,6 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	fp = e_open_file(fname);
 	op = e_open_op_file(strcat(op_fname, ".mtz"));  /* Append ".mtz" to the file name */ 
 
-	//uint8_t str[16000], temp[16000], arr[1];
 	uint8_t *str, *temp, arr[1];
 	uint16_t code;
 	uint16_t count;
