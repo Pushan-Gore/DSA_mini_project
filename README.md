@@ -4,12 +4,15 @@
 **** 111503023    **** <br>
 **** Compression  **** <br>
 
-	#Project : Compression ( Modified Version of LZW)
+	#Project : Compression (Modified Version of LZW)
 
-	Compressing:
-
-	The Project uses the LZW compression algorithm (My modified version) to compress a file.
-	I have used my modified version of LZW algorithm (similar to LZ77) for this project.
+	*Compressing:
+	
+	The program uses the LZW compression algorithm (My modified version) to compress a file into a single file with
+	".mtz" extension.
+	The program can also copress a folder in a "single" folder with ".mtz" extension.
+	".mtz" format stands for : My tar.z
+	I have used my modified version of LZW algorithm for this project.
 	The algorithm reads characters from the file and writes them to the dictionary.
 	
 	Compression algorithm is:
@@ -33,9 +36,12 @@
 	Example: 
 		./project -c example
 		>> example.mtz will be created.
+	The program also takes folders as:
+	Example:
+		./project -dc <FOLDER>
+		>> FOLDER.mtz will be created in the same directory as that of FOLDER.
 
-	
-	Decompressing or extracting:
+	*Decompressing or extracting:
 
 	Extraction algorithm is :
  	  BEGIN:
@@ -59,21 +65,15 @@
 	Example:
 		./project -x example.mtz
 		>> example will be created.
-		
-	This program also has a feature which will compress all the files in the working directory.
-	Usage:
-		./project -C
-		OR
-		./project -Call
-		
-	Also it will extract all ".mtz" files in the working directory.
-	Usage:
-		./project -X
-		OR
-		./project -Xall
-
-	Expected Final Project:
-		
-		The final project should compress and extract MULTIPLE files (compressed into a single file)
-
+	The program will also extract a ".mtz" extension folder.
+	Example:
+		./project -dx FOLDER.mtz
+		>>FOLDER will be created in the same directory of FOLDER.mtz
+	
+	Limitations :
+		The program takes some time to compress very large files.
+		Although extracting takes less than a second.
+		Also there is a slight problem with .pdf and .mp3 formats.
+		All other formats work perfectly.
+	
 
