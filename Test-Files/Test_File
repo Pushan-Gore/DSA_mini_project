@@ -1,0 +1,735 @@
+
+Ascii vs. Binary Files
+Introduction
+Most people classify files in two categories: binary files and ASCII (text) files. You've actually worked with both. Any program you write (C/C++/Perl/HTML) is almost surely an ASCII file.
+
+An ASCII file is defined as a file that consists of ASCII characters. It's usually created by using a text editor like emacs, pico, vi, Notepad, etc. There are fancier editors out there for writing code, but they may not always save it as ASCII.
+
+As an aside, ASCII text files seem very "American-centric". After all, the 'A' in ASCII stands for American. However, the US does seem to dominate the software market, and so effectively, it's an international standard.
+
+Computer science is all about creating good abstractions. Sometimes it succeeds and sometimes it doesn't. Good abstractions are all about presenting a view of the world that the user can use. One of the most successful abstractions is the text editor.
+
+When you're writing a program, and typing in comments, it's hard to imagine that this information is not being stored as characters. Of course, if someone really said "Come on, you don't really think those characters are saved as characters, do you? Don't you know about the ASCII code?", then you'd grudgingly agree that ASCII/text files are really stored as 0's and 1's.
+
+But it's tough to think that way. ASCII files are really stored as 1's and 0's. But what does it mean to say that it's stored as 1's and 0's? Files are stored on disks, and disks have some way to represent 1's and 0's. We merely call them 1's and 0's because that's also an abstraction. Whatever way is used to store the 0's and 1's on a disk, we don't care, provided we can think of them that way.
+
+In effect, ASCII files are basically binary files, because they store binary numbers. That is, ASCII files store 0's and 1's.
+The Difference between ASCII and Binary Files?
+An ASCII file is a binary file that stores ASCII codes. Recall that an ASCII code is a 7-bit code stored in a byte. To be more specific, there are 128 different ASCII codes, which means that only 7 bits are needed to represent an ASCII character.
+
+However, since the minimum workable size is 1 byte, those 7 bits are the low 7 bits of any byte. The most significant bit is 0. That means, in any ASCII file, you're wasting 1/8 of the bits. In particular, the most significant bit of each byte is not being used.
+
+Although ASCII files are binary files, some people treat them as different kinds of files. I like to think of ASCII files as special kinds of binary files. They're binary files where each byte is written in ASCII code.
+
+A full, general binary file has no such restrictions. Any of the 256 bit patterns can be used in any byte of a binary file.
+
+We work with binary files all the time. Executables, object files, image files, sound files, and many file formats are binary files. What makes them binary is merely the fact that each byte of a binary file can be one of 256 bit patterns. They're not restricted to the ASCII codes.
+Example of ASCII files
+Suppose you're editing a text file with a text editor. Because you're using a text editor, you're pretty much editing an ASCII file. In this brand new file, you type in "cat". That is, the letters 'c', then 'a', then 't'. Then, you save the file and quit.
+
+What happens? For the time being, we won't worry about the mechanism of what it means to open a file, modify it, and close it. Instead, we're concerned with the ASCII encoding.
+
+If you look up an ASCII table, you will discover the ASCII code for 0x63, 0x61, 0x74 (the 0x merely indicates the values are in hexadecimal, instead of decimal/base 10).
+
+Here's how it looks:
+ASCII 	'c' 	'a' 	't'
+Hex 	63 	61 	74
+Binary 	0110   0011 	0110   0001 	0111   1000
+
+Each time you type in an ASCII character and save it, an entire byte is written which corresponds to that character. This includes punctuations, spaces, and so forth. I recall one time a student has used 100 asterisks in his comments, and these asterisks appeared everywhere. Each asterisk used up one byte on the file. We saved thousands of bytes from his files by removing comments, mostly the asterisks, which made the file look nice, but didn't add to the clarity.
+
+Thus, when you type a 'c', it's being saved as 0110 0011 to a file.
+
+Now sometimes a text editor throws in characters you may not expect. For example, some editors "insist" that each line end with a newline character.
+
+What does that mean? I was once asked by a student, what happens if the end of line does not have a newline character. This student thought that files were saved as two-dimensions (whether the student realized ir or not). He didn't know that it was saved as a one dimensional array. He didn't realize that the newline character defines the end of line. Without that newline character, you haven't reached the end of line.
+
+The only place a file can be missing a newline at the end of the line is the very last line. Some editors allow the very last line to end in something besides a newline character. Some editors add a newline at the end of every file.
+
+Unfortunately, even the newline character is not that universally standard. It's common to use newline characters on UNIX files, but in Windows, it's common to use two characters to end each line (carriage return, newline, which is \r and \n, I believe). Why two characters when only one is necessary?
+
+This dates back to printers. In the old days, the time it took for a printer to return back to the beginning of a line was equal to the time it took to type two characters. So, two characters were placed in the file to give the printer time to move the printer ball back to the beginning of the line.
+
+This fact isn't all that important. It's mostly trivia. The reason I bring it up is just in case you've wondered why transferring files to UNIX from Windows sometimes generates funny characters.
+Editing Binary Files
+Now that you know that each character typed in an ASCII file corresponds to one byte in a file, you might understand why it's difficult to edit a binary file.
+
+If you want to edit a binary file, you really would like to edit individual bits. For example, suppose you want to write the binary pattern 1100 0011. How would you do this?
+
+You might be naive, and type in the following in a file:
+
+11000011
+
+But you should know, by now, that this is not editing individual bits of a file. If you type in '1' and '0', you are really entering in 0x49 and 0x48. That is, you're entering in 0100 1001 and 0100 1000 into the files. You're actually (indirectly) typing 8 bits at a time.
+
+"But, how am I suppose to edit binary files?", you exclaim! Sometimes I see this dilemma. Students are told to perform a task. They try to do the task, and even though their solution makes no sense at all, they still do it. If asked to think about whether this solution really works, they might eventually reason that it's wrong, but then they'd ask "But how do I edit a binary file? How do I edit the individual bits?"
+
+The answer is not simple. There are some programs that allow you type in 49, and it translates this to a single byte, 0100 1001, instead of the ASCII code for '4' and '9'. You can call these programs hex editors. Unfortunately, these may not be so readily available. It's not too hard to write a program that reads in an ASCII file that looks like hex pairs, but then converts it to a true binary file with the corresponding bit patterns.
+
+That is, it takes a file that looks like:
+
+63 a0 de
+
+and converts this ASCII file to a binary file that begins 0110 0011 (which is 63 in binary). Notice that this file is ASCII, which means what's really stored is the ASCII code for '6', '3', ' ' (space), 'a', '0', and so forth. A program can read this ASCII file then generate the appropriate binary code and write that to a file.
+
+Thus, the ASCII file might contain 8 bytes (6 for the characters, 2 for the spaces), and the output binary file would contain 3 bytes, one byte per hex pair.
+Viewing Binary Files
+Most operating systems come with some program that allows you to view a file in "binary" format. However, reading 0's and 1's can be cumbersome, so they usually translate to hexadecimal. There are programs called hexdump which come with the Linux distribution or xxd.
+
+While most people prefer to view files through a text editor, you can only conveniently view ASCII files this way. Most text editors will let you look at a binary file (such as an executable), but insert in things that look like ^@ to indicate control characters.
+
+A good hexdump will attempt to translate the hex pairs to printable ASCII if it can. This is interesting because you discover that in, say, executables, many parts of the file are still written in ASCII. So this is a very useful feature to have.
+Writing Binary Files, Part 2
+Why do people use binary files anyway? One reason is compactness. For example, suppose you wanted to write the number 100000. If you type it in ASCII, this would take 6 characters (which is 6 bytes). However, if you represent it as unsigned binary, you can write it out using 4 bytes.
+
+ASCII is convenient, because it tends to be human-readable, but it can use up a lot of space. You can represent information more compactly by using binary files.
+
+For example, one thing you can do is to save an object to a file. This is a kind of serialization. To dump it to a file, you use a write() method. Usually, you pass in a pointer to the object and the number of bytes used to represent the object (use the sizeof operator to determine this) to the write() method. The method then dumps out the bytes as it appears in memory into a file.
+
+You can then recover the information from the file and place it into the object by using a corresponding read() method which typically takes a pointer to an object (and it should point to an object that has memory allocated, whether it be statically or dynamically allocated) and the number of bytes for the object, and copies the bytes from the file into the object.
+
+Of course, you must be careful. If you use two different compilers, or transfer the file from one kind of machine to another, this process may not work. In particular, the object may be laid out differently. This can be as simple as endianness, or there may be issues with padding.
+
+This way of saving objects to a file is nice and simple, but it may not be all that portable. Furthermore, it does the equivalent of a shallow copy. If your object contains pointers, it will write out the addresses to the file. Those addresses are likely to be totally meaningless. Addresses may make sense at the time a program is running, but if you quit and restart, those addresses may change.
+
+This is why some people invent their own format for storing objects: to increase portability.
+
+But if you know you aren't storing objects that contain pointers, and you are reading the file in on the same kind of computer system you wrote it on, and you're using the same compiler, it should work.
+
+This is one reason people sometimes prefer to write out ints, chars, etc. instead of entire objects. They tend to be somewhat more portable.
+Summary
+An ASCII file is a binary file that consists of ASCII characters. ASCII characters are 7-bit encodings stored in a byte. Thus, each byte of an ASCII file has its most significant bit set to 0. Think of an ASCII file as a special kind of binary file.
+
+A generic binary file uses all 8-bits. Each byte of a binary file can have the full 256 bitstring patterns (as opposed to an ASCII file which only has 128 bitstring patterns).
+
+There may be a time where Unicode text files becomes more prevalent. But for now, ASCII files are the standard format for text files. 
+
+
+Good READMES from Homework 5
+
+To give you an idea of what we're looking for in a README, here are some particularly good README's which were submitted for homework 5. In general, characteristics of a good README included:
+
+    Brief or no discussion of concepts which were stated in lecture (eg, how an AVL tree does its rotations)
+    Succinct discussion of important design issues that were faced, the solution that was decided upon, as well as the rationale behind the decision.
+    For the Shakespeare/Bacon or extra credit analyses, it was important to state:
+        the problem/question they were answering,
+        any relevant data that they collected,
+        an answer to the stated question, which is justified by the collected data. 
+
+Note that length of the README, or graphics, did not determine the quality of a README -- the most important characteristic was that all conclusions were justified.
+
+README 1
+
+    This was a good readme because it very quickly jumped past details (such as how to compile/call the program, or lengthy introductions of known materials, like how an AVL tree does its rotations). Design decisions were discussed in detail (for instance, that ValueType needed to overload operator+), with no fanfare.
+
+    The word frequency analysis clearly laid out the process they followed.
+
+    The profiling clearly laid out their assumptions and their data. The data were actually presented (ie, they had numbers). Hypotheses were stated, and a conclusion was drawn about each one (ie, confirmed, disproven, or that it generated further questions).
+
+README 2
+
+    This readme very clearly laid out design principles, and briefly mentions all major design decisions, as well as their justification for what they decided.
+
+    The profiling analysis clearly stated their assumptions/misconceptions instead of merely stating profiling results. What they learned, as well as further areas to investigate, are mentioned. A conclusion is stated.
+
+README 3
+
+    Again, design problems/decisions are succinctly presented and a solution with its rationale are discussed. For profiling, an explicit "expectations" and "results" section is presented. Unanswered questions and weaknesses of their analysis are also mentioned.
+
+    A weak point of this readme is that the sorting algorithm analysis presents information without discussing their justification or where their data came from; this information sounds like it could have been copied from lecture slides.
+
+README 4
+
+    This readme succinctly summarizes their code; however, the strength of this readme lies in the extra credit writeup. The profiling results clearly state their assumptions (including an asymptotic bound). Their gprof results were clearly presented, and their analysis indicates what could cause the results they measured.
+
+
+Skip to main content
+Skip to search
+Main Menu
+
+    Drupal.org home
+    Download & Extend
+    Community
+    Documentation
+    Support
+    Jobs
+    Marketplace
+    About
+
+Return to Content
+Search form
+Search
+
+    Log in, view profile, and more
+
+Documentation
+Search
+DevelopDocumenting your project
+Close
+
+Announcement iconDrupal Association members fund grants that make connections all over the world.
+Join today
+Documenting your project
+
+    Help text standard (for core and contrib)
+    Module documentation guidelines
+    Project page template
+    README Template
+    Working with Drupal's Help system
+
+README Template
+Last updated on September 21, 2016 - 17:27
+
+The following components and template are based on the input of many who contributed to the discussion "Create a README.txt template". For the sake of having a fleshed out example, we're using some sample text. Most of it comes from the Administration menu module's README.txt.
+Table of contents
+
+TOCs are optional, but appreciated for lengthy README files.
+
+CONTENTS OF THIS FILE
+---------------------
+   
+ * Introduction
+ * Requirements
+ * Recommended modules
+ * Installation
+ * Configuration
+ * Troubleshooting
+ * FAQ
+ * Maintainers
+
+Introduction
+
+The introduction (required) shall consist of a brief paragraph or two that summarizes the purpose and function of this project. This introduction may be the same as the first paragraph on the project page.
+
+The introduction should include a link to the project page and issue queue. If the project is a sandbox, these links should go to the sandbox until promotion.
+
+INTRODUCTION
+------------
+
+The Administration Menu module displays the entire administrative menu tree
+(and most local tasks) in a drop-down menu, providing administrators one- or
+two-click access to most pages.  Other modules may also add menu links to the
+menu using hook_admin_menu_output_alter().
+
+ * For a full description of the module, visit the project page:
+   https://drupal.org/project/admin_menu
+
+ * To submit bug reports and feature suggestions, or to track changes:
+   https://drupal.org/project/issues/admin_menu
+
+Requirements
+
+The requirements section (required) shall make it clear whether this project requires anything outside of Drupal core to work (modules, libraries, etc). List all requirements here, including those that follow indirectly from another module, etc. The idea is to inform the users about what is required, so that everything they need can be procured and included in advance of attempting to install the module. If there are no requirements, write "No special requirements".
+
+REQUIREMENTS
+------------
+
+This module requires the following modules:
+
+ * Views (https://drupal.org/project/views)
+ * Panels (https://drupal.org/project/panels)
+
+Recommended modules
+
+This optional section lists modules that are not required, but that may enhance the usefulness or user experience of your project. Make sure to describe the benefits of enabling these modules.
+
+RECOMMENDED MODULES
+-------------------
+
+ * Markdown filter (https://www.drupal.org/project/markdown):
+   When enabled, display of the project's README.md help will be rendered
+   with markdown.
+
+Installation
+
+The installation section (required*) shall make it clear how to install the module. However, if the steps to install the module follow the standard instructions for Drupal 8, Drupal 7, Drupal 6/5, or a theme, don't reinvent the wheel — simply provide a link and explain in detail any steps that may diverge from these steps. Take special note of Drush integrations. In a case where many Drush commands are added, consider adding a section for Drush.
+
+Consider replacing this section with a standalone INSTALL.txt file if your installation instructions are especially complex.
+
+* - required unless a separate INSTALL.txt is provided.
+
+INSTALLATION
+------------
+ 
+ * Install as you would normally install a contributed Drupal module. See:
+   https://drupal.org/documentation/install/modules-themes/modules-7
+   for further information.
+
+ * You may want to disable Toolbar module, since its output clashes with
+   Administration Menu.
+
+Configuration
+
+The configuration section (required) is necessary even when little configuration is required. Use this section to list special notes about the configuration of this module – including but not limited to permissions. This section is particularly important if the module requires additional configuration outside of the Drupal UI.
+
+If the module has little or no configuration, you should use this space to explain how enabling/disabling the module will affect the site.
+
+CONFIGURATION
+-------------
+ 
+ * Configure user permissions in Administration » People » Permissions:
+
+   - Use the administration pages and help (System module)
+
+     The top-level administration categories require this permission to be
+     accessible. The administration menu will be empty unless this permission
+     is granted.
+
+   - Access administration menu
+
+     Users in roles with the "Access administration menu" permission will see
+     the administration menu at the top of each page.
+
+   - Display Drupal links
+
+     Users in roles with the "Display drupal links" permission will receive
+     links to drupal.org issue queues for all enabled contributed modules. The
+     issue queue links appear under the administration menu icon.
+
+ * Customize the menu settings in Administration » Configuration and modules »
+   Administration » Administration menu.
+
+ * To prevent administrative menu items from appearing twice, you may hide the
+   "Management" menu block.
+
+or
+
+CONFIGURATION
+-------------
+
+The module has no menu or modifiable settings. There is no configuration. When
+enabled, the module will prevent the links from appearing. To get the links
+back, disable the module and clear caches.
+
+Troubleshooting & FAQ
+
+These sections are optional. If present, they should address questions that are asked frequently in the issue queue (this will save you time in the future). Outline common problems that people encounter along with solutions (links are okay if the steps are long, but it is often helpful to provide a summary since links sometimes go stale).
+
+TROUBLESHOOTING
+---------------
+
+ * If the menu does not display, check the following:
+
+   - Are the "Access administration menu" and "Use the administration pages
+     and help" permissions enabled for the appropriate roles?
+
+   - Does html.tpl.php of your theme output the $page_bottom variable?
+
+FAQ
+---
+
+Q: I enabled "Aggregate and compress CSS files", but admin_menu.css is still
+   there. Is this normal?
+
+A: Yes, this is the intended behavior. the administration menu module only loads
+   its stylesheet as needed (i.e., on page requests by logged-on, administrative
+   users).
+
+Maintainers
+
+This section is optional and should replace any pre-existing standalone MAINTAINERS.txt file.
+
+MAINTAINERS
+-----------
+
+Current maintainers:
+ * Daniel F. Kudwien (sun) - https://drupal.org/user/54136
+ * Peter Wolanin (pwolanin) - https://drupal.org/user/49851
+ * Stefan M. Kudwien (smk-ka) - https://drupal.org/user/48898
+ * Dave Reid (Dave Reid) - https://drupal.org/user/53892
+
+This project has been sponsored by:
+ * UNLEASHED MIND
+   Specialized in consulting and planning of Drupal powered sites, UNLEASHED
+   MIND offers installation, development, theming, customization, and hosting
+   to get you started. Visit https://www.unleashedmind.com for more information.
+
+
+ 
+Advanced help will display the README file on the screen if it is enabled.
+
+During the Drupal project's lifetime, there has never been a clear consensus about what a README-file should look like, and many different styles exists as a result (see links below). However, we prefer new projects to use the format described on this page, or a format recognized by the Markdown filter module. If you use Markdown, your file should be named README.md (and use valid Markdown syntax), otherwise it should be named README.txt.
+
+Here is a summary of the preferred format for README.txt:
+
+    Headings in all caps.
+    Headings underlined with ===/--- to the length of the heading, followed by a newline.
+    Two lines prior to headings (except the first one).
+    Bullets denoted by asterisks (*) with hanging indents.
+    Numbered lists indented 4 spaces.
+    Bulleted lists indented 1 space.
+    Text manually word-wrapped within around 80 cols.
+
+Some sample README-files:
+
+    Morbus' README.txt style (which matches Drupal core's style the closest).
+    See also Block Attributes' README.txt, based on the preferred format and standards detailed above.
+    sun's README.txt style
+    John VanDyke & Matt Westgate README.txt style
+    syscrusher style
+
+Drupal’s online documentation is © 2000-2016 by the individual contributors and can be used in accordance with the Creative Commons License, Attribution-ShareAlike 2.0. PHP code is distributed under the GNU General Public License.
+News items
+
+    Drupal news
+    Planet Drupal
+    Association news
+    Social media directory
+    Security announcements
+    Jobs
+
+Our community
+
+    Community
+    Getting involved
+    Services, Training & Hosting
+    Groups & Meetups
+    DrupalCon
+    Code of conduct
+
+Documentation
+
+    Documentation
+    Drupal 8 docs
+    Drupal 7 docs
+    Developer docs
+    api.drupal.org
+
+Drupal code base
+
+    Download & Extend
+    Drupal core
+    Modules
+    Themes
+    Distributions
+
+Governance of community
+
+    About
+    Web accessibility
+    The Drupal Association
+    About Drupal.org
+    Terms of service
+    Privacy policy
+
+Drupal is a registered trademark of Dries Buytaert.
+
+Skip to main content
+Skip to search
+Main Menu
+
+    Drupal.org home
+    Download & Extend
+    Community
+    Documentation
+    Support
+    Jobs
+    Marketplace
+    About
+
+Return to Content
+Search form
+Search
+
+    Log in, view profile, and more
+
+Documentation
+Search
+DevelopDocumenting your project
+Close
+
+Announcement iconDrupal Association members fund grants that make connections all over the world.
+Join today
+Documenting your project
+
+    Help text standard (for core and contrib)
+    Module documentation guidelines
+    Project page template
+    README Template
+    Working with Drupal's Help system
+
+README Template
+Last updated on September 21, 2016 - 17:27
+
+The following components and template are based on the input of many who contributed to the discussion "Create a README.txt template". For the sake of having a fleshed out example, we're using some sample text. Most of it comes from the Administration menu module's README.txt.
+Table of contents
+
+TOCs are optional, but appreciated for lengthy README files.
+
+CONTENTS OF THIS FILE
+---------------------
+   
+ * Introduction
+ * Requirements
+ * Recommended modules
+ * Installation
+ * Configuration
+ * Troubleshooting
+ * FAQ
+ * Maintainers
+
+Introduction
+
+The introduction (required) shall consist of a brief paragraph or two that summarizes the purpose and function of this project. This introduction may be the same as the first paragraph on the project page.
+
+The introduction should include a link to the project page and issue queue. If the project is a sandbox, these links should go to the sandbox until promotion.
+
+INTRODUCTION
+------------
+
+The Administration Menu module displays the entire administrative menu tree
+(and most local tasks) in a drop-down menu, providing administrators one- or
+two-click access to most pages.  Other modules may also add menu links to the
+menu using hook_admin_menu_output_alter().
+
+ * For a full description of the module, visit the project page:
+   https://drupal.org/project/admin_menu
+
+ * To submit bug reports and feature suggestions, or to track changes:
+   https://drupal.org/project/issues/admin_menu
+
+Requirements
+
+The requirements section (required) shall make it clear whether this project requires anything outside of Drupal core to work (modules, libraries, etc). List all requirements here, including those that follow indirectly from another module, etc. The idea is to inform the users about what is required, so that everything they need can be procured and included in advance of attempting to install the module. If there are no requirements, write "No special requirements".
+
+REQUIREMENTS
+------------
+
+This module requires the following modules:
+
+ * Views (https://drupal.org/project/views)
+ * Panels (https://drupal.org/project/panels)
+
+Recommended modules
+
+This optional section lists modules that are not required, but that may enhance the usefulness or user experience of your project. Make sure to describe the benefits of enabling these modules.
+
+RECOMMENDED MODULES
+-------------------
+
+ * Markdown filter (https://www.drupal.org/project/markdown):
+   When enabled, display of the project's README.md help will be rendered
+   with markdown.
+
+Installation
+
+The installation section (required*) shall make it clear how to install the module. However, if the steps to install the module follow the standard instructions for Drupal 8, Drupal 7, Drupal 6/5, or a theme, don't reinvent the wheel — simply provide a link and explain in detail any steps that may diverge from these steps. Take special note of Drush integrations. In a case where many Drush commands are added, consider adding a section for Drush.
+
+Consider replacing this section with a standalone INSTALL.txt file if your installation instructions are especially complex.
+
+* - required unless a separate INSTALL.txt is provided.
+
+INSTALLATION
+------------
+ 
+ * Install as you would normally install a contributed Drupal module. See:
+   https://drupal.org/documentation/install/modules-themes/modules-7
+   for further information.
+
+ * You may want to disable Toolbar module, since its output clashes with
+   Administration Menu.
+
+Configuration
+
+The configuration section (required) is necessary even when little configuration is required. Use this section to list special notes about the configuration of this module – including but not limited to permissions. This section is particularly important if the module requires additional configuration outside of the Drupal UI.
+
+If the module has little or no configuration, you should use this space to explain how enabling/disabling the module will affect the site.
+
+CONFIGURATION
+-------------
+ 
+ * Configure user permissions in Administration » People » Permissions:
+
+   - Use the administration pages and help (System module)
+
+     The top-level administration categories require this permission to be
+     accessible. The administration menu will be empty unless this permission
+     is granted.
+
+   - Access administration menu
+
+     Users in roles with the "Access administration menu" permission will see
+     the administration menu at the top of each page.
+
+   - Display Drupal links
+
+     Users in roles with the "Display drupal links" permission will receive
+     links to drupal.org issue queues for all enabled contributed modules. The
+     issue queue links appear under the administration menu icon.
+
+ * Customize the menu settings in Administration » Configuration and modules »
+   Administration » Administration menu.
+
+ * To prevent administrative menu items from appearing twice, you may hide the
+   "Management" menu block.
+
+or
+
+CONFIGURATION
+-------------
+
+The module has no menu or modifiable settings. There is no configuration. When
+enabled, the module will prevent the links from appearing. To get the links
+back, disable the module and clear caches.The licenses for most software and other practical works are designed
+to take away your freedom to share and change the works.  By contrast,
+the GNU General Public License is intended to guarantee your freedom to
+share and change all versions of a program--to make sure it remains free
+software for all its users.  We, the Free Software Foundation, use the
+GNU General Public License for most of our software; it applies also to
+any other work released this way by its authors.  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+them if you wish), that you receive source code or can get it if you
+want it, that you can change the software or use pieces of it in new
+free programs, and that you know you can do these things.
+
+  To protect your rights, we need to prevent others from denying you
+these rights or asking you to surrender the rights.  Therefore, you have
+certain responsibilities if you distribute copies of the software, or if
+you modify it: responsibilities to respect the freedom of others.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must pass on to the recipients the same
+freedoms that you received.  You must make sure that they, too, receive
+or can get the source code.  And you must show them these terms so they
+know their rights.
+
+  Developers that use the GNU GPL protect your rights with two steps:
+(1) assert copyright on the software, and (2) offer you this License
+giving you legal permission to copy, distribute and/or modify it.
+
+  For the developers' and authors' protection, the GPL clearly explains
+that there is no warranty for this free software.  For both users' and
+authors' sake, the GPL requires that modified versions be marked as
+changed, so that their problems will not be attributed erroneously to
+authors of previous versions.
+
+  Some devices are designed to deny users access to install or run
+modified versions of the software inside them, although the manufacturer
+can do so.  This is fundamentally incompatible with the aim of
+protecting users' freedom to change the software.  The systematic
+pattern of such abuse occurs in the area of products for individuals to
+use, which is precisely where it is most unacceptable.  Therefore, we
+have designed this version of the GPL to prohibit the practice for those
+products.  If such problems arise substantially in other domains, we
+stand ready to extend this provision to those domains in future versions
+of the GPL, as needed to protect the freedom of users.
+
+  Finally, every program is threatened constantly by software patents.
+
+Troubleshooting & FAQ
+
+These sections are optional. If present, they should address questions that are asked frequently in the issue queue (this will save you time in the future). Outline common problems that people encounter along with solutions (links are okay if the steps are long, but it is often helpful to provide a summary since links sometimes go stale).
+
+TROUBLESHOOTING
+---------------
+
+ * If the menu does not display, check the following:
+
+   - Are the "Access administration menu" and "Use the administration pages
+     and help" permissions enabled for the appropriate roles?
+
+   - Does html.tpl.php of your theme output the $page_bottom variable?
+
+FAQ
+---
+
+Q: I enabled "Aggregate and compress CSS files", but admin_menu.css is still
+   there. Is this normal?
+
+A: Yes, this is the intended behavior. the administration menu module only loads
+   its stylesheet as needed (i.e., on page requests by logged-on, administrative
+   users).
+
+Maintainers
+
+This section is optional and should replace any pre-existing standalone MAINTAINERS.txt file.
+
+MAINTAINERS
+-----------
+
+Current maintainers:
+ * Daniel F. Kudwien (sun) - https://drupal.org/user/54136
+ * Peter Wolanin (pwolanin) - https://drupal.org/user/49851
+ * Stefan M. Kudwien (smk-ka) - https://drupal.org/user/48898
+ * Dave Reid (Dave Reid) - https://drupal.org/user/53892
+
+This project has been sponsored by:
+ * UNLEASHED MIND
+   Specialized in consulting and planning of Drupal powered sites, UNLEASHED
+   MIND offers installation, development, theming, customization, and hosting
+   to get you started. Visit https://www.unleashedmind.com for more information.
+
+
+ 
+Advanced help will display the README file on the screen if it is enabled.
+
+During the Drupal project's lifetime, there has never been a clear consensus about what a README-file should look like, and many different styles exists as a result (see links below). However, we prefer new projects to use the format described on this page, or a format recognized by the Markdown filter module. If you use Markdown, your file should be named README.md (and use valid Markdown syntax), otherwise it should be named README.txt.
+
+Here is a summary of the preferred format for README.txt:
+
+    Headings in all caps.
+    Headings underlined with ===/--- to the length of the heading, followed by a newline.
+    Two lines prior to headings (except the first one).
+    Bullets denoted by asterisks (*) with hanging indents.
+    Numbered lists indented 4 spaces.
+    Bulleted lists indented 1 space.
+    Text manually word-wrapped within around 80 cols.
+
+Some sample README-files:
+
+    Morbus' README.txt style (which matches Drupal core's style the closest).
+    See also Block Attributes' README.txt, based on the preferred format and standards detailed above.
+    sun's README.txt style
+    John VanDyke & Matt Westgate README.txt style
+    syscrusher style
+
+Drupal’s online documentation is © 2000-2016 by the individual contributors and can be used in accordance with the Creative Commons License, Attribution-ShareAlike 2.0. PHP code is distributed under the GNU General Public License.
+News items
+
+    Drupal news
+    Planet Drupal
+    Association news
+    Social media directory
+    Security announcements
+    Jobs
+
+Our community
+
+    Community
+    Getting involved
+    Services, Training & Hosting
+    Groups & Meetups
+    DrupalCon
+    Code of conduct
+
+Documentation
+
+    Documentation
+    Drupal 8 docs
+    Drupal 7 docs
+    Developer docs
+    api.drupal.org
+
+Drupal code base
+
+    Download & Extend
+    Drupal core
+    Modules
+    Themes
+    Distributions
+
+Governance of community
+
+    About
+    Web accessibility
+    The Drupal Association
+    About Drupal.org
+    Terms of service
+    Privacy policy
+
+Drupal is a registered trademark of Dries Buytaert.
+
