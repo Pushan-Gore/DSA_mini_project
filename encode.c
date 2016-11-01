@@ -48,6 +48,10 @@ void *memcat(void *s1, size_t n1, void *s2, size_t n2) {
 /* Returns the size of the file "file" in bytes */
 unsigned long fsize(char *file) {
 	FILE *f = fopen(file, "r");
+	if(f == NULL) {
+		perror("File open failed\n");
+		exit(1);
+	}
 	fseek(f, 0 , SEEK_END);
 	unsigned long len = (unsigned long) ftell(f);
 	fclose(f);
@@ -76,10 +80,6 @@ FILE * e_open_file(char *fname) {
 	FILE *fp;
 	fp = fopen(fname, "r");
 	/* Exit from the program if No file exists */
-	if(fp == NULL) {
-		perror("File open failed\n");
-		exit(1);
-	}
 	return fp;
 }
 
@@ -99,11 +99,12 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	FILE *fp, *op;
 	char file[128];
 	strcpy(file, fname);
-	fp = e_open_file(fname);
-	op = e_open_op_file(strcat(op_fname, ".mtz"));  /* Append ".mtz" to the file name */ 
 
 	unsigned long len = fsize(file);
 	unsigned long byte = 1;
+	
+	fp = e_open_file(fname);
+	op = e_open_op_file(strcat(op_fname, ".mtz"));  /* Append ".mtz" to the file name */ 
 
 	//uint8_t str[16000], temp[16000], arr[1];
 	uint8_t *str, *temp, arr[1];
@@ -115,7 +116,6 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * C_MAX_DICT_LEN);
 
 	/* Main Compression Loop */
-	printf("\n");
 	fread(arr, sizeof(uint8_t), 1, fp);
 	memcpy(str, arr, sizeof(uint8_t));  
 	count = sizeof(uint8_t);

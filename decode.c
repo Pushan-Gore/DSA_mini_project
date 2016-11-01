@@ -213,7 +213,6 @@ void decode(dict *d, char *fname, char *op_fname) {
 
 void d_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 	d->dictionary[d->lim_code] = (uint8_t *) malloc(sizeof(uint8_t) * count);    
-	
 	if(d->dictionary[d->lim_code] == NULL) {
 		printf("Memory limit reached.\n");
 		printf("Program terminated.\n");
