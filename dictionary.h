@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 #define MAX_LEN 16000
+#define FIL 10
+#define DIRECT 20
 
 typedef struct dict{
 	uint8_t **dictionary;   

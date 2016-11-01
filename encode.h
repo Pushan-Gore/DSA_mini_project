@@ -17,10 +17,10 @@ FILE *e_open_file(char *fname);
 FILE * e_open_op_file(char *fname);
 
 /* Encode should create a file with some extension (say .mtz) (stands for "My tar zip) */
-void encode(dict *d, char *fname, char *op_fname);
+void encode(dict *d, char *fname, char *op_fname, int mode);
 
 /* Encode should create a directory folder with extension (say .mtz) (stands for "My tar zip) */
-void dir_encode(char *dir_name, char *op_dir_name);
+void dir_encode(char *dir_name, char *op_dir_name, int mode);
 
 /* Returns the code of the string if the string is encountered in the dictionary */
 /* Else returns MAX_DICT_LEN */

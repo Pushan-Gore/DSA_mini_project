@@ -37,7 +37,6 @@ uint16_t *index_len;
 
 /* Memory concatination function. */
 /* Same as strcat. */
-
 void *memcat(void *s1, size_t n1, void *s2, size_t n2) {
 	void *target = (uint8_t *)s1 + n1;
 	memcpy(target, s2, n2);
@@ -57,7 +56,6 @@ unsigned long fsize(char *file) {
 /* Initializes the dictionary 'd' */
 /* The first 256 data entries are also initiated here */
 /* Code limit (lim_code) is the number of dictionary entries */
-
 void e_init(dict *d) {
 	/* Malloc the dictionary of pointers with MAX_DICT_LEN as 16000 */ 
 	d->dictionary = (uint8_t **) malloc (sizeof(uint8_t *) * C_MAX_DICT_LEN);   
@@ -73,7 +71,6 @@ void e_init(dict *d) {
 }
 
 /*A file open fucntion that returns the pointer of the file passed as an argument */
-
 FILE * e_open_file(char *fname) {
 	FILE *fp;
 	fp = fopen(fname, "r");
@@ -97,7 +94,7 @@ FILE * e_open_op_file(char *fname) {
 }
 
 /* Main Compression Function */
-void encode(dict *d, char *fname, char *op_fname) {
+void encode(dict *d, char *fname, char *op_fname, int mode) {
 	FILE *fp, *op;
 	char file[128];
 	strcpy(file, fname);
@@ -111,10 +108,10 @@ void encode(dict *d, char *fname, char *op_fname) {
 	uint16_t code;
 	uint16_t count;
 	
-	printf("\n");
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * C_MAX_DICT_LEN);
 
 	/* Main Compression Loop */
+	printf("\n");
 	fread(arr, sizeof(uint8_t), 1, fp);
 	memcpy(str, arr, sizeof(uint8_t));  
 	count = sizeof(uint8_t);
@@ -158,9 +155,11 @@ void encode(dict *d, char *fname, char *op_fname) {
 	code = e_search_dict(d, str, count);
 	fwrite(&code, sizeof(uint16_t), 1, op);
 
-	printf("\nOutput file : %s\n", op_fname);
-	printf("Compression ratio -> %lf : 1", ((double) len/ (double) (fsize(op_fname))));
-	printf("\n\n");
+	if(mode == FIL) {
+		printf("\nOutput file : %s\n", op_fname);
+		printf("Compression ratio -> %lf : 1", ((double) len/ (double) (fsize(op_fname))));
+		printf("\n\n");
+	}
 
 	/* Call the free dictionary function to clear all malloced pointers */ 
 	free(index_len);
@@ -174,7 +173,6 @@ void encode(dict *d, char *fname, char *op_fname) {
 /* Searches the dictionary for occurance of str */
 /* Returns MAX_DICT_LEN if no occurance is found */
 /* Else returns the index of the found occurance */	
-
 uint16_t e_search_dict(dict *d, uint8_t *str, uint16_t len) {      
 	if(len == 1) 
 		return (int) str[0];
@@ -190,7 +188,6 @@ uint16_t e_search_dict(dict *d, uint8_t *str, uint16_t len) {
 
 /* Appends the new string at the lim_code position of the dictionary */
 /* Increments the end of dictionary (lim_code) */
-
 void e_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 	d->dictionary[d->lim_code] = (uint8_t *) malloc(sizeof(uint8_t) * count);    
 	
@@ -206,7 +203,7 @@ void e_addto_dict(dict *d, uint8_t *str, uint16_t count) {
 }
 
 /* Function compresses the entire folder into a single folder with .mtz extension */
-void dir_encode(char *dir_name, char *op_dir_name) {
+void dir_encode(char *dir_name, char *op_dir_name, int mode) {
 	dict d;
 	struct dirent *de;  
 	DIR *dr = opendir(dir_name);
@@ -241,14 +238,14 @@ void dir_encode(char *dir_name, char *op_dir_name) {
 			strcat(string_ip, de->d_name);
 			strcpy(string_op, op_dir);
 			strcat(string_op, de->d_name);
-			encode(&d, string_ip, string_op);
+			encode(&d, string_ip, string_op, DIRECT);
 		}
 		else {
 			strcpy(string_ip, dir_name);
 			strcat(string_ip, de->d_name);		
 			strcpy(string_op, op_dir);
 			strcat(string_op, de->d_name);
-			dir_encode(string_ip, string_op);
+			dir_encode(string_ip, string_op, DIRECT);
 		}
 	}
 	closedir(dr);		

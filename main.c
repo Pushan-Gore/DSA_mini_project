@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	/* ./project -c <FILENAME> */
 	if((argc == 3) && (!strcmp(argv[1], _encode))) {
 		e_init(&d);
-		encode(&d, argv[2], argv[2]);
+		encode(&d, argv[2], argv[2], FIL);
 		return 0;
 	}	
 	
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	/* Encoding all files in current directory */	
+	/* Encoding the directory given as command line argument */	
 	/* ./project -dc <DIR> */
 	/* ./project --cdir <DIR> */
 	if((argc == 3) && ((!strcmp(argv[1], _mul_encode1)) || (!strcmp(argv[1], _mul_encode2)))) {
@@ -88,11 +88,12 @@ int main(int argc, char *argv[]) {
 			s = (char *) malloc (sizeof(char) * 128);
 			strcpy(s, argv[2]);
 		}
-		dir_encode(s, s);
+		dir_encode(s, s, DIRECT);
+		printf("\n\nCompression on Folder '%s' Done.\n", argv[2]);
 		return 0;
 	}
 
-	/* Decoding all ".mtz" files in the directory */
+	/* Decoding the given ".mtz" format diectory given as command line argument */
 	/* ./project -dx  <DIR> */
 	/* ./project --xdir <DIR> */
 	if((argc == 3) && ((!strcmp(argv[1], _mul_decode1)) || (!strcmp(argv[1], _mul_decode2)))) {
