@@ -34,6 +34,7 @@
 /* Stores the length of byte sequence*/
 uint16_t *index_len;
 
+int D_MAX = MAX_LEN;
 int D_MAX_DICT_LEN = MAX_LEN;
 
 /* Memory concatination function. */
@@ -118,10 +119,11 @@ void decode(dict *d, char *fname, char *op_fname) {
 	fp = d_open_file(file);
 	op = d_open_op_file(op_fname);
 	
-	uint8_t str[16000], arr[1];
+	uint8_t *str, arr[1];
 	uint16_t key, prev_key;
 	uint16_t count;
 
+	str = (uint8_t *) malloc(sizeof(uint8_t) * D_MAX);
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * D_MAX_DICT_LEN);
 
 	/* Main Decompression Loop */
@@ -134,6 +136,10 @@ void decode(dict *d, char *fname, char *op_fname) {
 	while(fread(&key, sizeof(uint16_t), 1, fp)) {
 		if(key < d->lim_code) {	
 			if(key > 255) {
+				if((index_len[key - 256] + 2) >= D_MAX) {
+					D_MAX *= 2;
+					str = (uint8_t *) realloc(str, sizeof(uint8_t) * D_MAX);
+				}		
 				memcpy(str, d->dictionary[key], index_len[key - 256]);
 				count = index_len[key - 256];
 			}
@@ -145,6 +151,10 @@ void decode(dict *d, char *fname, char *op_fname) {
 		
 		else {
 			if(prev_key > 255) {
+				if((index_len[prev_key - 256] + 2) >= D_MAX) {
+					D_MAX *= 2;
+					str = (uint8_t *) realloc(str, sizeof(uint8_t) * D_MAX);
+				}		
 				memcpy(str, d->dictionary[prev_key], index_len[prev_key - 256]);
 				count = index_len[prev_key - 256];
 			}
@@ -155,10 +165,18 @@ void decode(dict *d, char *fname, char *op_fname) {
 			d_memcat(str, count, arr, sizeof(uint8_t)); 
 			count = count + sizeof(uint8_t);
 		}
+		if((count + 2) >= D_MAX) {
+				D_MAX *= 2;
+				str = (uint8_t *) realloc(str, sizeof(uint8_t) * D_MAX);
+		}		
 		
 		fwrite(str, count, 1, op);
 		arr[0] = str[0];
 		if(prev_key > 255) { 
+			if((index_len[prev_key - 256] + 2) >= D_MAX) {
+				D_MAX *= 2;
+				str = (uint8_t *) realloc(str, sizeof(uint8_t) * D_MAX);
+			}		
 			memcpy(str, d->dictionary[prev_key] , index_len[prev_key - 256]);
 			d_memcat(str, index_len[prev_key - 256], arr ,sizeof(uint8_t));
 			count = index_len[prev_key - 256] + sizeof(uint8_t); 
@@ -182,6 +200,7 @@ void decode(dict *d, char *fname, char *op_fname) {
 	/* Call the free dictionary function to clear all malloced pointers */ 
 	free(index_len);
 	d_free_dict(d);
+	free(str);
 	free(file);
 	
 	/* Close both files */

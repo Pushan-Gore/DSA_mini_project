@@ -30,6 +30,7 @@
 #include "encode.h"
 #include "dictionary.h"
 
+int C_MAX = MAX_LEN;
 int C_MAX_DICT_LEN = MAX_LEN;
 
 /* Stores the length of the byte sequence */
@@ -104,10 +105,13 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	unsigned long len = fsize(file);
 	unsigned long byte = 1;
 
-	uint8_t str[16000], temp[16000], arr[1];
+	//uint8_t str[16000], temp[16000], arr[1];
+	uint8_t *str, *temp, arr[1];
 	uint16_t code;
 	uint16_t count;
 	
+	str = (uint8_t *) malloc(sizeof(uint8_t) * C_MAX);
+	temp = (uint8_t *) malloc(sizeof(uint8_t) * C_MAX);
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * C_MAX_DICT_LEN);
 
 	/* Main Compression Loop */
@@ -127,6 +131,11 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 		} 
 		else {
 			count = count + sizeof(uint8_t);
+			if((count + 2) >= C_MAX) {
+					C_MAX *= 2;
+					str = (uint8_t *) realloc(str, sizeof(uint8_t) * C_MAX);
+					temp = (uint8_t *) realloc(temp, sizeof(uint8_t) * C_MAX);
+			}		
 		}
 		
 		if(byte + 1 == len){
@@ -164,6 +173,8 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	/* Call the free dictionary function to clear all malloced pointers */ 
 	free(index_len);
 	e_free_dict(d);
+	free(str);
+	free(temp);
 
 	/* Close both files */
 	fclose(fp);
