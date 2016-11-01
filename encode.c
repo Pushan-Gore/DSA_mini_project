@@ -115,6 +115,7 @@ void encode(dict *d, char *fname, char *op_fname, int mode) {
 	index_len = (uint16_t *) malloc(sizeof(uint16_t) * C_MAX_DICT_LEN);
 
 	/* Main Compression Loop */
+	printf("\n");
 	fread(arr, sizeof(uint8_t), 1, fp);
 	memcpy(str, arr, sizeof(uint8_t));  
 	count = sizeof(uint8_t);
