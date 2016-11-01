@@ -73,7 +73,7 @@
 	Limitations :
 		The program takes some time to compress very large files.
 		Although extracting takes less than a second.
-		Also there is a slight problem with .pdf and .mp3 formats.
+		Also there is a slight problem with .pdf, .mp3  and some .jpg formats.
 		All other formats work perfectly.
 	
 
