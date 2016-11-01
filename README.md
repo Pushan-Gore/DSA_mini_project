@@ -75,5 +75,6 @@
 		Although extracting takes less than a second.
 		Also there is a slight problem with .pdf, .mp3  and some .jpg formats.
 		All other formats work perfectly.
+		An unknown character may occur while decompressing text file. ( Only a single character )
 	
 
