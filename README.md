@@ -20,21 +20,24 @@ Example: <br>
     >> example.mtz will be created. 
 The program also takes folders to compress as: <br>
 Example: <br>
-  <addr> $ ./project -dc FOLDER <br>
-  <addr> >> FOLDER.mtz will be created in the same directory as that of FOLDER. <br>
+
+    $ ./project -dc FOLDER 
+    >> FOLDER.mtz will be created in the same directory as that of FOLDER.
 <br>
 Check "./project --help" for more information. <br>
 <br>
 For decompression or extraction, the program takes a single file or a single folder. The file or folder should have a '.mtz' extension. <br>
 The outputed file will have the same name without the '.mtz' extension. <br>
 Example: <br>
-<addr> $ ./project -x example.mtz <br>
-<addr> >> example will be created. <br>
+
+    $ ./project -x example.mtz 
+    >> example will be created. 
 <br>
 The program will also extract a ".mtz" extension folder. <br>
 Example: <br>
-<addr> $ ./project -dx FOLDER.mtz <br>
-<addr> >>FOLDER will be created in the same directory of FOLDER.mtz <br>
+    
+    $ ./project -dx FOLDER.mtz 
+    >>FOLDER will be created in the same directory of FOLDER.mtz 
 <br>
 Limitations : <br>
 The program takes some time to compress very large files. <br>
