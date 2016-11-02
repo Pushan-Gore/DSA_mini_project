@@ -15,8 +15,8 @@ The dictionary stores a character sequence which is not in the dictionary entry.
 <br>
 The program takes a single file for compression and compresses it into a '.mtz' format file.(With same name) <br>
 Example: <br>
-  <addr> $ ./project -c example <br>
-  <addr> >> example.mtz will be created. <br>
+        $ ./project -c example 
+        >> example.mtz will be created. 
 The program also takes folders to compress as: <br>
 Example: <br>
   <addr> $ ./project -dc FOLDER <br>
