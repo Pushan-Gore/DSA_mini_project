@@ -3,6 +3,8 @@
 Name: Pushan Gore  <br>
 MIS:  111503023    <br>
 
+GIT Link : https://github.com/Pushan-Gore/DSA_mini_project.git
+
 **Project : Compression** 
 
 The program uses the LZW compression algorithm (My modified version) to compress a file into a single file with
